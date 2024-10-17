@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Moodle-Tweaks
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      Alpha-v2
 // @description  Reduces the size of the header on Moodle
 // @author       Csongor
 // @match        https://moodle.maynoothuniversity.ie/*
@@ -160,60 +160,3 @@
         clearInterval(interval);
     }, 30000); // Stop after 30 seconds
 })();
-
-(function() {
-    'use strict';
-
-    // Function to add a hide button to each timeline item
-    function addHideButtons() {
-        // Select all timeline items
-        const timelineItems = document.querySelectorAll('.timeline-event-list-item'); // Correct selector for timeline items
-
-        timelineItems.forEach(item => {
-            // Check if the hide button already exists
-            if (item.querySelector('.hide-timeline-item')) {
-                return; // Skip if button is already added
-            }
-
-            // Create the "Hide" button
-            const hideButton = document.createElement('button');
-            hideButton.textContent = 'Hide';
-            hideButton.className = 'btn btn-sm btn-secondary hide-timeline-item';
-            hideButton.style.marginLeft = '10px';
-
-            // Add click event to hide the timeline item
-            hideButton.addEventListener('click', () => {
-                item.style.display = 'none'; // Hide the timeline item
-            });
-
-            // Append the hide button to the timeline item
-            const eventNameContainer = item.querySelector('.event-name-container');
-            if (eventNameContainer) {
-                eventNameContainer.appendChild(hideButton); // Append the button next to the event name
-            }
-        });
-    }
-
-    // Function to observe timeline changes and add hide buttons to new items
-    function observeTimeline() {
-        const timelineContainer = document.querySelector('.list-group.list-group-flush'); // Timeline container
-        if (timelineContainer) {
-            const observer = new MutationObserver((mutationsList) => {
-                addHideButtons(); // Reapply hide buttons when a change is detected
-            });
-
-            observer.observe(timelineContainer, {
-                childList: true,
-                subtree: true,
-            });
-        }
-    }
-
-    // Apply the hide button initially and set up the observer
-    window.addEventListener('load', () => {
-        addHideButtons(); // Add hide buttons initially
-        observeTimeline(); // Set up the MutationObserver to catch new items
-    });
-})();
-
-

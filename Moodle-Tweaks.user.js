@@ -1,11 +1,14 @@
 // ==UserScript==
-// @name         Moodle-Tweaks
-// @namespace    http://tampermonkey.net/
+// @name         Moodle Tweaks
+// @namespace    https://github.com/belamadar/mu-moodle-tweaks
 // @version      Alpha-v2
-// @description  Reduces the size of the header on Moodle
-// @author       Csongor
+// @description  Enhancements for Moodle interface (e.g., hiding items, marking as done, etc.)
+// @author       belamadar
 // @match        https://moodle.maynoothuniversity.ie/*
 // @grant        none
+// @updateURL    https://raw.githubusercontent.com/belamadar/mu-moodle-tweaks/main/Moodle-Tweaks.user.js
+// @downloadURL  https://raw.githubusercontent.com/belamadar/mu-moodle-tweaks/main/Moodle-Tweaks.user.js
+// @supportURL   https://github.com/belamadar/mu-moodle-tweaks/issues
 // ==/UserScript==
 
 

@@ -162,4 +162,128 @@
     setTimeout(() => {
         clearInterval(interval);
     }, 30000); // Stop after 30 seconds
+(function() {
+    'use strict';
+
+    // Function to generate a unique ID based on item content
+    function generateUniqueId(item) {
+        const title = item.querySelector('.event-name a')?.textContent.trim();
+        const dueDate = item.querySelector('small')?.textContent.trim();
+        const courseName = item.querySelector('.event-name-container small')?.textContent.trim();
+
+        // Combine title, due date, and course name into a unique identifier
+        const uniqueId = `${title}-${dueDate}-${courseName}`;
+        return uniqueId.replace(/\s+/g, '-').toLowerCase(); // Normalize and return
+    }
+
+    // Function to add a dropdown with "Mark as done" and move existing buttons
+    function addDropdownActions() {
+        // Select all timeline items
+        const timelineItems = document.querySelectorAll('[data-region="event-list-item"]');
+
+        timelineItems.forEach(item => {
+            // Generate a unique item identifier
+            const itemId = generateUniqueId(item);
+            if (!itemId) {
+                console.error('Failed to generate unique ID for item');
+                return;
+            }
+
+            // Check if the dropdown already exists
+            if (item.querySelector('.dropdown-action')) {
+                return;
+            }
+
+            // Create the dropdown container
+            const dropdownContainer = document.createElement('div');
+            dropdownContainer.className = 'ml-auto dropdown dropdown-action';
+
+            // Create the three-dot button
+            const button = document.createElement('button');
+            button.className = 'btn btn-link btn-icon icon-size-3';
+            button.type = 'button';
+            button.setAttribute('data-toggle', 'dropdown');
+            button.innerHTML = '<i class="icon fa fa-ellipsis-v fa-fw m-0"></i>';
+
+            // Create the dropdown menu
+            const dropdownMenu = document.createElement('div');
+            dropdownMenu.className = 'dropdown-menu dropdown-menu-right';
+
+            // Move existing buttons (View, Add submission) to the dropdown
+            const existingActions = item.querySelector('.timeline-action-button');
+            if (existingActions) {
+                const actionLinks = existingActions.querySelectorAll('a');
+                actionLinks.forEach(link => {
+                    const dropdownItem = document.createElement('a');
+                    dropdownItem.className = 'dropdown-item';
+                    dropdownItem.href = link.href;
+                    dropdownItem.textContent = link.textContent;
+                    dropdownMenu.appendChild(dropdownItem);
+                });
+                // Remove existing action buttons from the original location
+                existingActions.remove();
+            }
+
+            // Create "Mark as done" dropdown item
+            const markAsDoneItem = document.createElement('a');
+            markAsDoneItem.className = 'dropdown-item';
+            markAsDoneItem.href = '#';
+            markAsDoneItem.textContent = 'Mark as done';
+
+            // Add click event to "Mark as done"
+            markAsDoneItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log(`Marking item ${itemId} as done`); // Log for debugging
+                markAsDone(itemId, item); // Call function to mark the item as done
+            });
+
+            // Append "Mark as done" to the dropdown menu
+            dropdownMenu.appendChild(markAsDoneItem);
+
+            // Append the button and dropdown menu to the container
+            dropdownContainer.appendChild(button);
+            dropdownContainer.appendChild(dropdownMenu);
+
+            // Append the dropdown to the timeline item
+            item.querySelector('.d-flex.flex-wrap').appendChild(dropdownContainer);
+
+            // Apply the "Mark as done" status from LocalStorage if exists
+            applyMarkAsDoneState(itemId, item);
+        });
+    }
+
+    // Function to mark an item as done
+    function markAsDone(itemId, item) {
+        // Add a visual indication that the item is done (e.g., greying out or strike-through)
+        item.classList.add('done'); // Add visual indicator
+        console.log(`Storing item ${itemId} as done in LocalStorage`); // Log for debugging
+        localStorage.setItem(itemId, 'done'); // Store the state in LocalStorage
+    }
+
+    // Function to apply the "Mark as done" state on page load
+    function applyMarkAsDoneState(itemId, item) {
+        // Check if the item is already marked as done in LocalStorage
+        if (localStorage.getItem(itemId) === 'done') {
+            console.log(`Item ${itemId} is marked as done, applying class`); // Log for debugging
+            item.classList.add('done'); // Apply visual indicator if marked as done
+        }
+    }
+
+    // Function to observe timeline changes and add dropdown actions to new items
+    function observeTimeline() {
+        const timelineContainer = document.querySelector('[data-region="timeline"]');
+        if (timelineContainer) {
+            const observer = new MutationObserver(() => {
+                addDropdownActions(); // Reapply dropdowns when new items are detected
+            });
+            observer.observe(timelineContainer, { childList: true, subtree: true });
+        }
+    }
+
+    // Initial function call on page load
+    window.addEventListener('load', () => {
+        addDropdownActions();
+        observeTimeline();
+    });
 })();
+    
